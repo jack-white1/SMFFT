@@ -30,6 +30,7 @@
 //#include <helper_functions.h>
 
 
+
 #define NREUSES 100
 #define NCUDABLOCKS 1000
 
@@ -1069,7 +1070,7 @@ int FFT_multiple_benchmark(half2* d_input, half2* d_output, int FFT_size, int nF
 // ***********************************************************************************
 // ***********************************************************************************
 // ***********************************************************************************
-int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, int nRuns, half* single_ex_time) {
+int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, int nRuns, double* single_ex_time) {
 	//---------> Initial nVidia stuff
 	int devCount;
 	size_t free_mem, total_mem;
@@ -1108,8 +1109,57 @@ int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inv
 	error = cufftCreate(&plan);
 	assert(error == CUFFT_SUCCESS);
 	size_t ws = 0;
-	error = cufftXtMakePlanMany(plan, 1, &input_size, NULL, 1, 1, CUDA_C_16F, NULL, 1, 1, CUDA_C_16F, 1, &ws, CUDA_C_16F);
-	assert(error == CUFFT_SUCCESS);
+	long long int rank = 1;
+	long long int n[1]; n[0]=input_size;
+	long long int nembed[1]; nembed[0]=input_size;
+	long long int stride = 1;
+	long long int dist = input_size;
+
+	error = cufftXtMakePlanMany(plan,rank,n,nembed,stride,dist,CUDA_C_16F,nembed,stride,dist,CUDA_C_16F,1,&ws,CUDA_C_16F);
+
+
+
+	//error = cufftXtMakePlanMany(plan,(long long) 1,	&input_size,(long long) &FFT_size,(long long) 1,(long long) FFT_size,CUDA_C_16F,(long long) &FFT_size, (long long) 1, (long long) 1,CUDA_C_16F,(long long) 1,&ws,CUDA_C_16F);
+
+	switch (error)
+    {
+        case CUFFT_SUCCESS:
+            printf("CUFFT_SUCCESS\n");
+
+        case CUFFT_INVALID_PLAN:
+            printf("CUFFT_INVALID_PLAN\n");
+
+        case CUFFT_ALLOC_FAILED:
+            printf("CUFFT_ALLOC_FAILED\n");
+
+        case CUFFT_INVALID_TYPE:
+            printf("CUFFT_INVALID_TYPE\n");
+
+        case CUFFT_INVALID_VALUE:
+            printf("CUFFT_INVALID_VALUE\n");
+
+        case CUFFT_INTERNAL_ERROR:
+            printf("CUFFT_INTERNAL_ERROR\n");
+
+        case CUFFT_EXEC_FAILED:
+            printf("CUFFT_EXEC_FAILED\n");
+
+        case CUFFT_SETUP_FAILED:
+            printf("CUFFT_SETUP_FAILED\n");
+
+        case CUFFT_INVALID_SIZE:
+            printf("CUFFT_INVALID_SIZE\n");
+
+        case CUFFT_UNALIGNED_DATA:
+            printf("CUFFT_UNALIGNED_DATA\n");
+
+        default:
+        	printf("NO CASE MATCH\n");
+    }
+
+
+
+	//assert(error == CUFFT_SUCCESS);
 
 	timer.Start();
 	if (inverse) error = cufftXtExec(plan, d_input, d_output, CUFFT_INVERSE);
@@ -1141,7 +1191,7 @@ int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inv
 	return(0);
 }
 
-int GPU_smFFT_4elements(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, bool reorder, int nRuns, half* single_ex_time, half* multi_ex_time) {
+int GPU_smFFT_4elements(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, bool reorder, int nRuns, double* single_ex_time, double* multi_ex_time) {
 	//---------> Initial nVidia stuff
 	int devCount;
 	size_t free_mem, total_mem;
@@ -1228,7 +1278,7 @@ int GPU_smFFT_4elements(half2* h_input, half2* h_output, int FFT_size, int nFFTs
 
 
 
-float max_error = 1.0e-4;
+//float max_error = 1.0e-4;
 
 void Generate_signal(half* signal, int samples) {
 	float f1, f2, a1, a2;
@@ -1238,7 +1288,7 @@ void Generate_signal(half* signal, int samples) {
 		signal[f] = __float2half(a1 * sin(2.0 * 3.141592654 * f1 * f) + a2 * sin(2.0 * 3.141592654 * f2 * f + (3.0 * 3.141592654) / 4.0));
 	}
 }
-
+/*
 half get_error(float A, float B) {
 	float error, div_error = 10000, per_error = 10000, order = 0;
 	int power;
@@ -1265,9 +1315,9 @@ half get_error(float A, float B) {
 	if (div_error < per_error) error = div_error;
 	else error = per_error;
 	return(__float2half(error));
-}
+}*/
 
-
+/*
 int Compare_data(half2* cuFFT_result, half2* smFFT_result, int FFT_size, int nFFTs, half* cumulative_error, half* mean_error) {
 	float error;
 	int nErrors = 0;
@@ -1293,12 +1343,14 @@ int Compare_data(half2* cuFFT_result, half2* smFFT_result, int FFT_size, int nFF
 	*cumulative_error = dtemp;
 	*mean_error = dtemp / (float)(FFT_size * nFFTs);
 	return(nErrors);
-}
+}*/
 
 
-int GPU_smFFT_4elements(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, bool reorder, int nRuns, half* single_ex_time, half* multi_ex_time);
+int GPU_smFFT_4elements(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, bool reorder, int nRuns, double* single_ex_time, double* multi_ex_time);
+
 //int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inverse, int nRuns, half* single_ex_time);
 
+/*
 int main(int argc, char* argv[]) {
 	if (argc != 6) {
 		printf("Argument error!\n");
@@ -1389,3 +1441,4 @@ int main(int argc, char* argv[]) {
 
 	return (0);
 }
+*/
