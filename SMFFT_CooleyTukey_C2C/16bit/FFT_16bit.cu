@@ -1121,40 +1121,45 @@ int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inv
 
 	//error = cufftXtMakePlanMany(plan,(long long) 1,	&input_size,(long long) &FFT_size,(long long) 1,(long long) FFT_size,CUDA_C_16F,(long long) &FFT_size, (long long) 1, (long long) 1,CUDA_C_16F,(long long) 1,&ws,CUDA_C_16F);
 
+	printf("Error %d in cufftXtMakePlanMany()\n", error);
 	switch (error)
     {
         case CUFFT_SUCCESS:
             printf("CUFFT_SUCCESS\n");
-
+            break;
         case CUFFT_INVALID_PLAN:
             printf("CUFFT_INVALID_PLAN\n");
-
+            break;
         case CUFFT_ALLOC_FAILED:
             printf("CUFFT_ALLOC_FAILED\n");
-
+            break;
         case CUFFT_INVALID_TYPE:
             printf("CUFFT_INVALID_TYPE\n");
-
+            break;
         case CUFFT_INVALID_VALUE:
             printf("CUFFT_INVALID_VALUE\n");
-
+            break;
         case CUFFT_INTERNAL_ERROR:
             printf("CUFFT_INTERNAL_ERROR\n");
-
+            break;
         case CUFFT_EXEC_FAILED:
             printf("CUFFT_EXEC_FAILED\n");
-
+            break;
         case CUFFT_SETUP_FAILED:
             printf("CUFFT_SETUP_FAILED\n");
-
+            break;
         case CUFFT_INVALID_SIZE:
             printf("CUFFT_INVALID_SIZE\n");
-
+            break;
         case CUFFT_UNALIGNED_DATA:
             printf("CUFFT_UNALIGNED_DATA\n");
-
+            break;
+        case CUFFT_NOT_SUPPORTED:
+        	printf("CUFFT_NOT_SUPPORTED\n");
+        	break;
         default:
         	printf("NO CASE MATCH\n");
+        	break;
     }
 
 
