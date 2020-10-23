@@ -1106,16 +1106,17 @@ int GPU_cuFFT(half2* h_input, half2* h_output, int FFT_size, int nFFTs, bool inv
 	cufftHandle plan;
 	cufftResult error;
 	//error = cufftPlan1d(&plan, FFT_size, CUFFT_Z2Z, nFFTs);
+
 	error = cufftCreate(&plan);
 	assert(error == CUFFT_SUCCESS);
 	size_t ws = 0;
 	long long int rank = 1;
-	long long int n[1]; n[0]=input_size;
-	long long int nembed[1]; nembed[0]=input_size;
+	long long int n[1]; n[0]=FFT_size;
+	long long int nembed[1]; nembed[0]=FFT_size;
 	long long int stride = 1;
-	long long int dist = input_size;
+	long long int dist = FFT_size;
 
-	error = cufftXtMakePlanMany(plan,rank,n,nembed,stride,dist,CUDA_C_16F,nembed,stride,dist,CUDA_C_16F,1,&ws,CUDA_C_16F);
+	error = cufftXtMakePlanMany(plan,rank,n,nembed,stride,dist,CUDA_C_16F,nembed,stride,dist,CUDA_C_16F,nFFTs,&ws,CUDA_C_16F);
 
 
 

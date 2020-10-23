@@ -9,7 +9,7 @@
 #include <cuda_runtime_api.h>
 #include <cuda_fp16.h>
 
-double max_error = 1.0e-4;
+double max_error = 1.0e1;
 
 void Generate_signal(float *signal, int samples){
 	float f1,f2,a1,a2;
